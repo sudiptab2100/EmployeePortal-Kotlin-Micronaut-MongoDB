@@ -37,6 +37,18 @@ open class MongoDbEmployeeRepository(
             .onErrorReturn(false)
     }
 
+    override fun updateAField(eid: String, field: String, value: String): Mono<Boolean> {
+        if(field == "salary") {
+            return updateSalary(eid, value.toInt())
+        }
+        val updates: Bson = Updates.combine(
+            Updates.set(field, value)
+        )
+        return Mono.from(collection.updateOne(eq("eid", eid), updates))
+            .map { true }
+            .onErrorReturn(false)
+    }
+
     private val collection: MongoCollection<Employee>
         get() = mongoClient.getDatabase(mongoConf.name)
                 .getCollection(mongoConf.collection, Employee::class.java)

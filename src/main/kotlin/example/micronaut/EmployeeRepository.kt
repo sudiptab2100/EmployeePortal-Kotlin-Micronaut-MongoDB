@@ -12,5 +12,7 @@ interface EmployeeRepository {
 
     fun updateSalary(eid: String, salary: Int): Mono<Boolean>
 
+    fun updateAField(eid: String, field: String, value: String): Mono<Boolean>
+
     fun save(@Valid employee: Employee): Mono<Boolean>
 }
