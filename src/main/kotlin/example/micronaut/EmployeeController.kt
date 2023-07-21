@@ -22,6 +22,9 @@ open class EmployeeController(private val employeeService: EmployeeRepository) {
     @Post("/update/{eid}/{field}/{value}")
     fun updateAField(eid: String, field: String, value: String) = employeeService.updateAField(eid, field, value)
 
+    @Post("/drop/{eid}")
+    fun dropAnEmployee(eid: String) = employeeService.dropAnEmployee(eid)
+
     @Post("/add") // <4>
     open fun save(@Valid employee: Employee): Mono<HttpStatus> { // <5>
         return employeeService.save(employee) // <6>

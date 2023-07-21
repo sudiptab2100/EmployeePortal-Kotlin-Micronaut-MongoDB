@@ -28,7 +28,7 @@ open class MongoDbEmployeeRepository(
     @NonNull
     override fun getByEID(eid: String): Publisher<Employee> = collection.find(eq("eid", eid))
 
-    override fun updateSalary(eid: String, salary: Int): Mono<Boolean> {
+    private fun updateSalary(eid: String, salary: Int): Mono<Boolean> {
         val updates: Bson = Updates.combine(
             Updates.set("salary", salary)
         )
@@ -48,6 +48,11 @@ open class MongoDbEmployeeRepository(
             .map { true }
             .onErrorReturn(false)
     }
+
+    override fun dropAnEmployee(eid: String): Mono<Boolean> =
+        Mono.from(collection.findOneAndDelete(eq("eid", eid))) // <4>
+            .map { true }
+            .onErrorReturn(false)
 
     private val collection: MongoCollection<Employee>
         get() = mongoClient.getDatabase(mongoConf.name)
