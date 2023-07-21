@@ -10,5 +10,7 @@ interface EmployeeRepository {
 
     fun getByEID(eid: String): Publisher<Employee>
 
+    fun updateSalary(eid: String, salary: Int): Mono<Boolean>
+
     fun save(@Valid employee: Employee): Mono<Boolean>
 }

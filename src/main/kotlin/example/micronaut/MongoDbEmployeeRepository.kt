@@ -8,6 +8,8 @@ import org.reactivestreams.Publisher
 import reactor.core.publisher.Mono
 import jakarta.validation.Valid
 import com.mongodb.client.model.Filters.eq
+import com.mongodb.client.model.Updates
+import org.bson.conversions.Bson
 
 
 @Singleton // <1>
@@ -25,6 +27,15 @@ open class MongoDbEmployeeRepository(
 
     @NonNull
     override fun getByEID(eid: String): Publisher<Employee> = collection.find(eq("eid", eid))
+
+    override fun updateSalary(eid: String, salary: Int): Mono<Boolean> {
+        val updates: Bson = Updates.combine(
+            Updates.set("salary", salary)
+        )
+        return Mono.from(collection.updateOne(eq("eid", eid), updates))
+            .map { true }
+            .onErrorReturn(false)
+    }
 
     private val collection: MongoCollection<Employee>
         get() = mongoClient.getDatabase(mongoConf.name)
