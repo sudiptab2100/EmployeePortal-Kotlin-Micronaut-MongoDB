@@ -4,14 +4,16 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.HttpStatus.CONFLICT
 import io.micronaut.http.HttpStatus.CREATED
-import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Mono
 import jakarta.validation.Valid
 
+@Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller("/api/emp") // <1>
 open class EmployeeController(private val employeeService: EmployeeRepository) { // <2>
 
