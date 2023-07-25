@@ -1,8 +1,10 @@
 package example.micronaut
 
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.HttpStatus.CONFLICT
 import io.micronaut.http.HttpStatus.CREATED
+import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
@@ -20,7 +22,23 @@ open class EmployeeController(private val employeeService: EmployeeRepository) {
     fun getById(eid: String) = employeeService.getByEID(eid)
 
     @Post("/update/{eid}/{field}/{value}")
-    fun updateAField(eid: String, field: String, value: String) = employeeService.updateAField(eid, field, value)
+    fun updateAField(eid: String, field: String, value: String): Any? {
+        val ss = listOf("eid", "name", "salary", "dept", "location")
+        if (field !in ss) return HttpResponse.badRequest<CustomError>()
+            .body(CustomError(
+                HttpStatus.BAD_REQUEST.code,
+                "Invalid Field",
+                "Only Supported Fields: $ss"
+            ))
+        val res = employeeService.updateAField(eid, field, value).block()
+        return HttpResponse.accepted<CustomOK>().body(CustomOK(
+            HttpStatus.ACCEPTED.code,
+            "Update Successful"
+        ))
+    }
+
+//    @Post("/update/{eid}/{field}/{value}")
+//    fun updateAField(eid: String, field: String, value: String) = employeeService.updateAField(eid, field, value)
 
     @Post("/drop/{eid}")
     fun dropAnEmployee(eid: String) = employeeService.dropAnEmployee(eid)
