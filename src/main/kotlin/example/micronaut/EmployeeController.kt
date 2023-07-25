@@ -22,7 +22,7 @@ open class EmployeeController(private val employeeService: EmployeeRepository) {
     fun getById(eid: String) = employeeService.getByEID(eid)
 
     @Post("/update/{eid}/{field}/{value}")
-    fun updateAField(eid: String, field: String, value: String): Any? {
+    fun updateAField(eid: String, field: String, value: String): HttpResponse<Any> {
         val ss = listOf("eid", "name", "salary", "dept", "location")
         if (field !in ss) return HttpResponse.badRequest<CustomError>()
             .body(CustomError(
