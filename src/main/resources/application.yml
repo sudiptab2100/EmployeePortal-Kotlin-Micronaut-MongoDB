@@ -10,8 +10,17 @@ micronaut:
   application:
     name: EmployeePortal
   http:
+    port: 8080
     client:
       read-timeout: 120s
+  secure:
+    port: 8443
+    enabled: true
+  ssl:
+    enabled: false
+    certificate:
+      path: "keystore.p12"
+      password: "123456"
 #tag::db[]
 db:
   name: 'Pega'

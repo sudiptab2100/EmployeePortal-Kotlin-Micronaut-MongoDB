@@ -27,3 +27,4 @@ replay_pid*
 .gradle/
 .micronaut/
 build/
+keystore.p12
