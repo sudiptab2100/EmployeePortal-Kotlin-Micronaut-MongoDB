@@ -4,6 +4,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.HttpStatus.CONFLICT
 import io.micronaut.http.HttpStatus.CREATED
+import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
@@ -20,6 +21,9 @@ import org.slf4j.LoggerFactory
 open class EmployeeController(private val employeeService: EmployeeRepository, private val employeeProducer: EmployeeProducer) {
 
     private val logger: Logger = LoggerFactory.getLogger(EmployeeController::class.java);
+    companion object{
+        val statusOf: MutableMap<String, Int> = mutableMapOf()
+    }
 
     @Get("/all")
     fun list(): Publisher<Employee> = employeeService.list()
@@ -56,8 +60,28 @@ open class EmployeeController(private val employeeService: EmployeeRepository, p
     }
 
     @Post("/add-async")
-    open fun saveAsync(@Valid employee: Employee) {
+    open fun saveAsync(@Valid employee: Employee): MutableHttpResponse<Any>? {
         logger.debug("\n\tReceived New Employee: {}", employee)
+        statusOf[employee.eid] = 0
         employeeProducer.send(employee.eid, employee)
+        var i = 0
+        while(statusOf[employee.eid] == 0) {
+            Thread.sleep(1000)
+            logger.debug("Loop: {}", i)
+            i++
+        }
+        return if(statusOf[employee.eid] == 1) {
+            HttpResponse.accepted<CustomOK>().body(CustomOK(
+                HttpStatus.ACCEPTED.code,
+                "Employee Creation Successful"
+            ))
+        } else {
+            HttpResponse.badRequest<CustomError>()
+                .body(CustomError(
+                    HttpStatus.BAD_REQUEST.code,
+                    "Employee Creation Error",
+                    "Employee ${employee.eid} couldn't be created"
+                ))
+        }
     }
 }

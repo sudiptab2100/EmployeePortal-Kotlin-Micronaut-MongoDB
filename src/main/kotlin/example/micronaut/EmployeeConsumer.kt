@@ -23,6 +23,8 @@ class EmployeeConsumer(private val employeeService: EmployeeRepository) {
         for(employee in employees) {
             logger.debug("Consuming New Employee: {}", employee)
             val res = employeeService.save(employee).block()
+            if(res == true) EmployeeController.statusOf[employee.eid] = 1
+            else EmployeeController.statusOf[employee.eid] = 2
             logger.debug("Consumption Result: {}", res)
         }
     }
