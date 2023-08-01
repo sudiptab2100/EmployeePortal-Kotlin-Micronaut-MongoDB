@@ -15,7 +15,7 @@ micronaut:
       read-timeout: 120s
   secure:
     port: 8443
-    enabled: true
+    enabled: false
   ssl:
     enabled: false
     certificate:
@@ -28,3 +28,7 @@ db:
 #end::db[]
 mongodb:
   uri: mongodb://localhost:27017/
+kafka:
+  bootstrap:
+    servers:
+      - localhost:9092

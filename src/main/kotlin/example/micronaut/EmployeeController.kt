@@ -12,12 +12,16 @@ import io.micronaut.security.rules.SecurityRule
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Mono
 import jakarta.validation.Valid
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Secured(SecurityRule.IS_AUTHENTICATED)
-@Controller("/api/emp") // <1>
-open class EmployeeController(private val employeeService: EmployeeRepository) { // <2>
+@Controller("/api/emp")
+open class EmployeeController(private val employeeService: EmployeeRepository, private val employeeProducer: EmployeeProducer) {
 
-    @Get("/all") // <3>
+    private val logger: Logger = LoggerFactory.getLogger(EmployeeController::class.java);
+
+    @Get("/all")
     fun list(): Publisher<Employee> = employeeService.list()
 
     @Get("/filter/{eid}")
@@ -49,5 +53,11 @@ open class EmployeeController(private val employeeService: EmployeeRepository) {
     open fun save(@Valid employee: Employee): Mono<HttpStatus> { // <5>
         return employeeService.save(employee) // <6>
                 .map { added: Boolean -> if (added) CREATED else CONFLICT }
+    }
+
+    @Post("/add-async")
+    open fun saveAsync(@Valid employee: Employee) {
+        logger.debug("\n\tReceived New Employee: {}", employee)
+        employeeProducer.send(employee.eid, employee)
     }
 }
